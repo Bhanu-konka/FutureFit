@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Results - AI Job Agent</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #0f1115; color: #e6e6e6; margin: 0; padding: 20px;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    h1 { margin: 10px 0 4px; }
+    .meta { color: #9aa0a6; margin-bottom: 24px; }
+    .card {
+      background: #171923; border: 1px solid #2a2f3a; border-radius: 12px;
+      padding: 16px; margin-bottom: 16px;
+    }
+    .title { font-size: 18px; margin: 0 0 6px; }
+    .sub { color: #aab2bf; margin: 0 0 8px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    a.btn {
+      display: inline-block; padding: 10px 14px; border-radius: 8px; text-decoration: none;
+      background: #2d6cdf; color: #fff; font-weight: 600;
+    }
+    pre {
+      white-space: pre-wrap; word-wrap: break-word;
+      background: #0b0d12; border: 1px solid #202431; padding: 12px; border-radius: 8px;
+    }
+    .empty {
+      background: #1b1f2a; padding: 16px; border-radius: 10px; color: #9aa0a6;
+    }
+    .download-box {
+      margin: 24px 0; padding: 16px;
+      background: #1b1f2a; border: 1px solid #2a2f3a; border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Matched Jobs</h1>
+    <div class="meta">
+      Domain: <strong>{{ domain }}</strong> • Location: <strong>{{ location }}</strong>
+    </div>
+
+    <!-- ✅ Download CV section -->
+    <div class="download-box">
+      <p><strong>Your tailored CV is ready!</strong></p>
+      <a class="btn" href="/download" target="_blank" rel="noopener">Download Tailored CV</a>
+    </div>
+
+    {% if matched_jobs and matched_jobs|length > 0 %}
+      {% for job in matched_jobs %}
+        <div class="card">
+          <p class="title">{{ job.title }} — {{ job.company }}</p>
+          <p class="sub">{{ job.location }}</p>
+
+          <div class="row" style="margin: 10px 0 14px;">
+            {% if job.link and job.link != "#" %}
+              <a class="btn" href="{{ job.link }}" target="_blank" rel="noopener">Apply</a>
+            {% else %}
+              <span class="sub">No direct apply link found</span>
+            {% endif %}
+          </div>
+
+          {% if job.cover_letter %}
+            <p class="sub">Tailored Cover Letter:</p>
+            <pre>{{ job.cover_letter }}</pre>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">
+        No matches found. Please try a different domain or location.
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
