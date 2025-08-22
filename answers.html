@@ -30,50 +30,51 @@
     .empty {
       background: #1b1f2a; padding: 16px; border-radius: 10px; color: #9aa0a6;
     }
-    .download-box {
-      margin: 24px 0; padding: 16px;
-      background: #1b1f2a; border: 1px solid #2a2f3a; border-radius: 12px;
-    }
+    .top-actions { margin: 12px 0 20px; }
+    .top-actions a { color: #9aa0a6; text-decoration: none; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Matched Jobs</h1>
-    <div class="meta">
-      Domain: <strong>{{ domain }}</strong> • Location: <strong>{{ location }}</strong>
-    </div>
-
-    <!-- ✅ Download CV section -->
-    <div class="download-box">
-      <p><strong>Your tailored CV is ready!</strong></p>
-      <a class="btn" href="/download" target="_blank" rel="noopener">Download Tailored CV</a>
-    </div>
-
-    {% if matched_jobs and matched_jobs|length > 0 %}
-      {% for job in matched_jobs %}
-        <div class="card">
-          <p class="title">{{ job.title }} — {{ job.company }}</p>
-          <p class="sub">{{ job.location }}</p>
-
-          <div class="row" style="margin: 10px 0 14px;">
-            {% if job.link and job.link != "#" %}
-              <a class="btn" href="{{ job.link }}" target="_blank" rel="noopener">Apply</a>
-            {% else %}
-              <span class="sub">No direct apply link found</span>
-            {% endif %}
-          </div>
-
-          {% if job.cover_letter %}
-            <p class="sub">Tailored Cover Letter:</p>
-            <pre>{{ job.cover_letter }}</pre>
-          {% endif %}
-        </div>
-      {% endfor %}
-    {% else %}
-      <div class="empty">
-        No matches found. Please try a different domain or location.
-      </div>
-    {% endif %}
+    <div class="top-actions"><a href="index.html">← Back</a></div>
+    <div id="meta" class="meta"></div>
+    <div id="results"></div>
   </div>
+
+  <script>
+    const raw = sessionStorage.getItem("ai_job_agent_results");
+    const metaEl = document.getElementById("meta");
+    const resultsEl = document.getElementById("results");
+
+    if (!raw) {
+      metaEl.innerHTML = "<span class='sub'>No results found in this session. Please run a new search.</span>";
+    } else {
+      const data = JSON.parse(raw);
+      const { domain, location, matched_jobs } = data || {};
+      metaEl.innerHTML = `Domain: <strong>${domain || "-"}</strong> • Location: <strong>${location || "-"}</strong>`;
+
+      if (!matched_jobs || !matched_jobs.length) {
+        resultsEl.innerHTML = `<div class="empty">No matches found. Please try a different domain or location.</div>`;
+      } else {
+        resultsEl.innerHTML = matched_jobs.map(job => {
+          const title = job.title || "Untitled Role";
+          const company = job.company || "Unknown Company";
+          const loc = job.location || "";
+          const link = job.link && job.link !== "#" ? `<a class="btn" href="${job.link}" target="_blank" rel="noopener">Apply</a>` : `<span class="sub">No direct apply link found</span>`;
+          const cover = job.cover_letter ? `<p class="sub">Tailored Cover Letter:</p><pre>${job.cover_letter}</pre>` : "";
+
+          return `
+            <div class="card">
+              <p class="title">${title} — ${company}</p>
+              <p class="sub">${loc}</p>
+              <div class="row" style="margin: 10px 0 14px;">${link}</div>
+              ${cover}
+            </div>
+          `;
+        }).join("");
+      }
+    }
+  </script>
 </body>
 </html>
